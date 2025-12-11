@@ -1,0 +1,8 @@
+password
+secret
+token
+api_key
+access_key
+private_key
+AWS
+credentials
