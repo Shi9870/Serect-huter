@@ -4,7 +4,10 @@ import tkinter as tk
 from tkinter import filedialog,messagebox,scrolledtext
 import sqlite3
 from db_mannger import KeywordDB
+from PIL import Image,ImageTk
 
+#GUI Setting
+ICON_SIZE = (32,32)
 # core function 
 def load_KeyWords():
     try:
@@ -21,7 +24,7 @@ def load_KeyWords():
     except Exception as e:
         print("Fail to connect the database")
         return None
-    
+
 
 #regex load the string 
 regex_string = load_KeyWords()
@@ -93,6 +96,43 @@ def start_scan():
     result_area.insert(tk.END,f"Scanning end. Found {found_count} possible leaks\n")
     messagebox.showinfo("Done",f"Scanning end. Found {found_count} possible leaks")
 
+#setting section
+def open_settings():
+    setting_win = tk.Toplevel(window)
+    setting_win.title("Setting")
+    setting_win.geometry("400x300")
+    tk.Label(setting_win,text="Keyword List")
+    
+    setting_win.grab_set()
+    list_frame = tk.Frame(setting_win)
+    list_frame.pack(pady=10)
+
+    scrollbar = tk.Scrollbar(list_frame)
+    scrollbar.pack(side=tk.RIGHT,fill=tk.Y)
+
+    keyword_listbox = tk.Listbox(list_frame,width=40,height=10,yscrollcommand=scrollbar.set)
+    keyword_listbox.pack(side=tk.LEFT)
+    scrollbar.config(command=keyword_listbox.yview)
+
+    words = load_KeyWords()
+
+    keyword_listbox.insert(tk.END,words)
+
+    # Entry Button
+    add_frame = tk.Frame(setting_win)
+    add_frame.pack(pady=5)
+    tk.Label(add_frame,text="Add New Keyword").pack(side=tk.LEFT)
+
+    new_word_entry = tk.Entry(add_frame, width=20)
+    new_word_entry.pack(side=tk.LEFT,padx=5)
+    #建立add_key function
+    btn_add = tk.Button(add_frame,text= "ADD",bg="#ccffcc")
+    btn_add.pack(side=tk.LEFT)
+
+    #建立delete_key function
+    btn_del = tk.Button(setting_win,text="Choose the one you want to delete",bg="#ffcccc")
+    btn_del.pack(pady=10)
+
 window = tk.Tk()
 window.title("Secret Hunter v1.0")
 window.geometry("600x500")
@@ -102,13 +142,45 @@ frame_top = tk.Frame(window, pady=10)
 frame_top.pack()
 
 tk.Label(frame_top,text="Target file:").pack(side=tk.LEFT)
+
+#Path area
 path_entry =  tk.Entry(frame_top, width=40)
 path_entry.pack(side=tk.LEFT,padx=5)
 btn_select = tk.Button(frame_top,text=" File viewing",command=select_folder)
 btn_select.pack(side=tk.LEFT)
 
+#Start Button
 btn_start = tk.Button(window, text="Start Scanning",command=start_scan,bg="#ffcccc", font=("Arial", 12, "bold"))
 btn_start.pack(pady=5)
+
+#Setting Button 
+current_dir = os.path.dirname(os.path.abspath(__file__))
+img_folder = os.path.join(current_dir,"img")
+setting_path = os.path.join(img_folder, "setting.png")
+
+setting_img = None
+
+try:
+    pil_img = Image.open(setting_path)
+
+    resize_image = pil_img.resize(ICON_SIZE,Image.LANCZOS)
+
+    setting_img = ImageTk.PhotoImage(resize_image)
+    print("success to loaded and resize the image")
+
+except FileNotFoundError:
+    print(f"Error Fail to find the image:{setting_path}")
+except Exception as e:
+    print(f"Failed to load / resize the image:{e}")
+
+if setting_img:
+
+    btn_setting = tk.Button(frame_top, image=setting_img, bd=0, command=open_settings)
+    btn_setting.image = setting_img 
+else:
+    btn_setting = tk.Button(frame_top, text="Setting", command=open_settings)
+
+btn_setting.pack(side=tk.LEFT, padx=10)
 
 tk.Label(window, text="Result").pack(anchor=tk.W,padx=10)
 result_area = scrolledtext.ScrolledText(window,width = 70,height = 20)
