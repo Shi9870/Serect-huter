@@ -98,10 +98,12 @@ def start_scan():
 
 #setting section
 def open_settings():
+    db = KeywordDB()
+    keyword_list = db.get_all_keyword()
     setting_win = tk.Toplevel(window)
     setting_win.title("Setting")
     setting_win.geometry("400x300")
-    tk.Label(setting_win,text="Keyword List")
+    tk.Label(setting_win,text="Keyword List").pack(pady=5)
     
     setting_win.grab_set()
     list_frame = tk.Frame(setting_win)
@@ -125,13 +127,53 @@ def open_settings():
 
     new_word_entry = tk.Entry(add_frame, width=20)
     new_word_entry.pack(side=tk.LEFT,padx=5)
-    #建立add_key function
-    btn_add = tk.Button(add_frame,text= "ADD",bg="#ccffcc")
+
+    #Refresh list view
+    def refresh_listbox():
+        keyword_listbox.delete(0,tk.END)
+        latest_word = db.get_all_keyword()
+
+        for w in latest_word:
+            keyword_listbox.insert(tk.END,w)
+
+    # add_keyword function
+    def add_words():
+        word = new_word_entry.get().strip()
+        if not word:
+            return
+        success =db.add_keyword(word=word)
+        if success:
+            messagebox.showinfo(title="Happy insert",message=f"Word {word} insert successfully")
+            new_word_entry.delete(0,tk.END)
+            refresh_listbox()
+        else:
+            messagebox.showwarning(title="Oops same word",message=f"The keyword {word} already exist in the list")
+    
+    def delete_words():
+        selection = keyword_listbox.curselection()
+
+        if not selection:
+            messagebox.showwarning("Warring","Please select a keyword to delete")
+            return
+        
+        index = selection[0]
+        word_to_delete = keyword_listbox.get(index)
+        confirm = messagebox.askyesno("Confirm",f"Are you sure you want to delete {word_to_delete}")
+
+        if confirm:
+            db.delete_keyword(word_to_delete)
+
+            refresh_listbox()
+            messagebox.showinfo("Delete",f"Word {word_to_delete} has beenn removed")
+
+    btn_add = tk.Button(add_frame,text= "Add",bg="#ccffcc",command=add_words)
     btn_add.pack(side=tk.LEFT)
 
+
     #建立delete_key function
-    btn_del = tk.Button(setting_win,text="Choose the one you want to delete",bg="#ffcccc")
+    btn_del = tk.Button(setting_win,text="Choose the one you want to delete",bg="#ffcccc",command=delete_words)
     btn_del.pack(pady=10)
+    refresh_listbox()
 
 window = tk.Tk()
 window.title("Secret Hunter v1.0")
