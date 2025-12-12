@@ -2,36 +2,36 @@ import os
 import re
 import tkinter as tk
 from tkinter import filedialog,messagebox,scrolledtext
+import sqlite3
+from db_mannger import KeywordDB
 
 # core function 
 def load_KeyWords():
+    try:
+        db = KeywordDB()
 
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-    config_path =os.path.join(current_dir,"keyword.txt")
+        keyword_list = db.get_all_keyword()
 
-    keywords = []
+        print(f"Keyword List:{keyword_list}")
 
-    if os.path.exists(config_path):
-        try:
-            with open(config_path,'r',encoding='utf-8') as f:
-                for line in f:
-                    clean_word = line.strip()
-                    if clean_word:
-                        keywords.append(clean_word)
-
-            return "|".join(keywords)
-        except:
+        if keyword_list and len(keyword_list) > 0:
+            return "|".join(keyword_list)
+        else:
             return None
-    return None
+    except Exception as e:
+        print("Fail to connect the database")
+        return None
+    
 
 #regex load the string 
 regex_string = load_KeyWords()
 
 if regex_string:
     Keywords_pattern = re.compile(regex_string, re.IGNORECASE)
+    print("You got the key word")
 else:
     Keywords_pattern = None
-
+    print("You fail to get the word")
 #GUI
 
 def select_folder():
