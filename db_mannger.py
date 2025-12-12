@@ -28,21 +28,23 @@ class KeywordDB():
             conn.execute(create_table_sql)
     
     def add_keyword(self,word):
+        clean_word = word.strip().lower()
         sql = "INSERT OR IGNORE INTO keywords (word) VALUES (?)"
 
         try:
             with self._get_connection() as conn:
-                conn.execute(sql,(word.strip(),))
+                conn.execute(sql,(clean_word,))
             return True
         except Exception as e:
             print(f"Fail to insert:{e}")
 
             return False
     def delete_keyword(self,word):
+        clean_word = word.strip().lower()
         sql = "DELETE FROM keywords WHERE word = ?"
 
         with self._get_connection() as conn:
-            conn.execute(sql,(word,))
+            conn.execute(sql,(clean_word,))
 
     def get_all_keyword(self):
 
