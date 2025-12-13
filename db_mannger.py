@@ -29,11 +29,11 @@ class KeywordDB():
     
     def add_keyword(self,word):
         clean_word = word.strip().lower()
-        sql = "INSERT OR IGNORE INTO keywords (word) VALUES (?)"
-
+        insert = "INSERT INTO keywords (word) VALUES (?)"
+        
         try:
             with self._get_connection() as conn:
-                conn.execute(sql,(clean_word,))
+                conn.execute(insert,(clean_word,))
             return True
         except Exception as e:
             print(f"Fail to insert:{e}")
