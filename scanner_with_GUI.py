@@ -1,10 +1,27 @@
 import os 
 import re
 import tkinter as tk
-from tkinter import filedialog,messagebox,scrolledtext
-import sqlite3
+from tkinter import filedialog,messagebox,scrolledtext,ttk
 from db_mannger import KeywordDB
 from PIL import Image,ImageTk
+
+def is_target_file(filename):
+    if filename.endswith('.pyc'):
+        return False
+
+    if filename == "scanner_with_GUI.py":
+        return False
+        
+    if filename == 'keyword.txt' or filename == 'keywords.txt':
+        return False
+    
+    if filename.lower().endswith(('.png', '.jpg', '.jpeg', '.gif', '.exe', '.dll')):
+        return False
+    
+    if filename.startswith('.'):
+        return False
+        
+    return True
 
 #GUI Setting
 ICON_SIZE = (32,32)
@@ -41,13 +58,34 @@ def select_folder():
 
     folder_selected = filedialog.askdirectory()
 
+
     if folder_selected:
         path_entry.delete(0,tk.END)
         path_entry.insert(0,folder_selected)
 
 def start_scan():
-
     target_path = path_entry.get()
+
+    total_file = 0
+    for root, dirs, files in os.walk(target_path):
+        if '.git' in dirs: 
+            dirs.remove(".git")
+
+        if '__pycache__' in dirs:
+            dirs.remove('__pycache__')
+        for file_name in files:
+            if not is_target_file(file_name):
+                total_file +=1
+                print(total_file)
+    
+    if total_file == 0:
+        messagebox.showinfo("Info", "No valid files found.")
+        progress_label.config(text="Ready")
+        return
+    
+    progress_bar['maximum'] = total_file
+    progress_label.config(text=f"scanning 0 / {total_file}")
+    window.update()
 
     if not target_path:
         messagebox.showwarning("warning","Please select one folder")
@@ -63,18 +101,24 @@ def start_scan():
     result_area.delete(1.0,tk.END)
     result_area.insert(tk.END,f"Scanning Start in  {target_path}\n")
     result_area.insert(tk.END,"="*50+"\n")
-
-
-    found_count =0
+    progress_bar['value']=0
+    progress_label.config(text="Calulating total files...")
+    window.update()
+    
+    processed_count = 0
+    found_count = 0
     #scanning logic
     for root, dirs, files in os.walk(target_path):
-        if '.git' in dirs: dirs.remove(".git")
+        if '.git' in dirs: 
+            dirs.remove(".git")
+
+        if '__pycache__' in dirs: 
+            dirs.remove('__pycache__')
 
         for file_name in files:
-
-            if file_name.endswith('.py') or file_name == 'keywords.txt':
+            if is_target_file(file_name):
                 continue
-
+        
             full_path = os.path.join(root,file_name)
 
             try:
@@ -82,24 +126,40 @@ def start_scan():
                     for line_num, line in enumerate(f,1):
                         if Keywords_pattern.search(line):
                             found_count +=1
+                            content = line.strip()
                             result_area.insert(tk.END,f"Found leaking in {file_name} at line {line_num}")
-                            result_area.insert(tk.END,f"content {line.strip()}")
+                            result_area.insert(tk.END,f" content {line.strip()}\n {content}")
                             result_area.insert(tk.END,"-"*30+"\n")
 
-                            result_area.see(tk.END)
-                            
-                            window.update()
-                            continue
             except Exception as e:
-                result_area.insert(tk.END,f"Can not read {file_name}")
+                result_area.insert(tk.END,f"Can not read {file_name}\n")
 
+            processed_count +=1
+            progress_bar['value'] = processed_count
+            progress_label.config(text=f"scanning: {processed_count} / {total_file}")
+            if processed_count % 10 == 0:
+                window.update()
+
+    progress_bar['value'] = total_file
+    window.update()   
     result_area.insert(tk.END,f"Scanning end. Found {found_count} possible leaks\n")
+    result_area.see(tk.END)
     messagebox.showinfo("Done",f"Scanning end. Found {found_count} possible leaks")
 
-#setting section
+############################################################
+######################setting section#######################
+############################################################
 def open_settings():
     db = KeywordDB()
     keyword_list = db.get_all_keyword()
+
+    def listen(event):
+        selection = keyword_listbox.curselection()
+        if selection:
+            btn_del.config(state="normal",text="Delete the word")
+        else:
+            btn_del.config(state="disabled",text="Select one word you want to delete")
+
     setting_win = tk.Toplevel(window)
     setting_win.title("Setting")
     setting_win.geometry("400x300")
@@ -150,12 +210,12 @@ def open_settings():
             messagebox.showwarning(title="Oops same word",message=f"The keyword {word} already exist in the list")
     
     def delete_words():
+            
         selection = keyword_listbox.curselection()
 
         if not selection:
             messagebox.showwarning("Warring","Please select a keyword to delete")
-            return
-        
+            return        
         index = selection[0]
         word_to_delete = keyword_listbox.get(index)
         confirm = messagebox.askyesno("Confirm",f"Are you sure you want to delete {word_to_delete}")
@@ -171,10 +231,14 @@ def open_settings():
 
 
     #建立delete_key function
-    btn_del = tk.Button(setting_win,text="Choose the one you want to delete",bg="#ffcccc",command=delete_words)
+    keyword_listbox.bind("<<ListboxSelect>>",listen)
+    btn_del = tk.Button(setting_win,text="Delete",bg="#ffcccc",command=delete_words,state='disabled')
     btn_del.pack(pady=10)
     refresh_listbox()
 
+############################################################
+####################### Main screen ########################
+############################################################
 window = tk.Tk()
 window.title("Secret Hunter v1.0")
 window.geometry("600x500")
@@ -194,6 +258,12 @@ btn_select.pack(side=tk.LEFT)
 #Start Button
 btn_start = tk.Button(window, text="Start Scanning",command=start_scan,bg="#ffcccc", font=("Arial", 12, "bold"))
 btn_start.pack(pady=5)
+
+#Progress Bar
+progress_bar = ttk.Progressbar(window,orient=tk.HORIZONTAL,length=400,mode='determinate')
+progress_bar.pack(pady=10)
+progress_label = tk.Label(window,text='Ready')
+progress_label.pack()
 
 #Setting Button 
 current_dir = os.path.dirname(os.path.abspath(__file__))
