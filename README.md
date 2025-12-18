@@ -1,6 +1,10 @@
 # Secret Hunter
 
-**Secret Hunter** is a machine learning–based desktop application built with **:contentReference[oaicite:0]{index=0}** for detecting potential leaks of **API keys, tokens, and other sensitive credentials** in source code.
+![Python](https://img.shields.io/badge/Python-3.10%2B-blue)
+![XGBoost](https://img.shields.io/badge/ML-XGBoost-orange)
+![License](https://img.shields.io/badge/License-MIT-green)
+
+**Secret Hunter** is a machine learning–based desktop application built with **CustomTkinter** and **XGBoost** for detecting potential leaks of API keys, tokens, and other sensitive credentials in source code.
 
 Unlike traditional tools that rely solely on regular expressions, Secret Hunter combines **statistical feature analysis** (e.g., Shannon entropy) with **ML-based classification** to identify high-risk random-looking secrets (such as AWS or OpenAI-style keys), while significantly reducing false positives caused by ordinary variables or noise.
 
@@ -8,130 +12,146 @@ Unlike traditional tools that rely solely on regular expressions, Secret Hunter 
 
 ## Features
 
-- **ML-driven detection**  
+* **ML-driven detection**
   Uses an XGBoost model to analyze string entropy, character ratios, and structural patterns to determine whether a string is likely to be sensitive.
 
-- **Modern GUI**  
+* **Modern GUI**
   Dark-mode desktop interface built with CustomTkinter, featuring real-time progress updates.
 
-- **Risk-based classification**
-  - **CRITICAL** – Very high confidence; matches common credential patterns (e.g., AWS, OpenAI keys)
-  - **HIGH** – Highly suspicious random-looking strings
-  - **MEDIUM** – Possibly a credential or a high-entropy variable
-  - **LOW** – Low risk; usually filtered as noise or placeholders
+* **Risk-based classification**
+  * **CRITICAL**: Very high confidence; matches common credential patterns (e.g., AWS, OpenAI keys).
+  * **HIGH**: Highly suspicious random-looking strings.
+  * **MEDIUM**: Possibly a credential or a high-entropy variable.
+  * **LOW**: Low risk; usually filtered as noise or placeholders.
 
-- **Recursive directory scanning**  
-  Supports deep scanning of project folders while automatically ignoring directories such as `.git`, `venv`, and `__pycache__`.
+* **Recursive directory scanning**
+  Supports deep scanning of project folders while automatically ignoring directories such as .git, venv, and __pycache__.
 
-- **Multithreaded execution**  
+* **Multithreaded execution**
   Scanning runs in background threads to ensure a smooth and responsive UI.
 
 ---
 
 ## Technical Overview
 
-- **Frontend**: Python (CustomTkinter, Tkinter)  
-- **Core Model**: XGBoost (Gradient Boosting Decision Trees)
+* **Frontend**: Python (CustomTkinter, Tkinter)
+* **Core Model**: XGBoost (Gradient Boosting Decision Trees)
 
 ### Feature Engineering
-- **Shannon Entropy** – Measures randomness of strings  
-- **Regex Pre-filter** – Initial extraction of candidate strings  
-- **Structural Ratios** – Distribution of digits, uppercase letters, and symbols  
+
+The detection engine utilizes the following features to evaluate strings:
+
+1. **Shannon Entropy**: Measures the randomness of strings.
+2. **Regex Pre-filter**: Initial extraction of candidate strings to optimize performance.
+3. **Structural Ratios**: Distribution analysis of digits, uppercase letters, and symbols.
 
 ---
 
 ## Installation
 
 ### Requirements
-- Python 3.10 or higher  
-- Virtual environment recommended
+
+* Python 3.10 or higher
+* Virtual environment (recommended)
 
 ### Setup
-```bash
-git clone https://github.com/Shi9870/Serect-huter.git
-cd Serect-huter
-Create and activate a virtual environment:
-```
-Windows
-```bash
-python -m venv venv
-venv\Scripts\activate
-```
-macOS / Linux
-```bash
-python3 -m venv venv
-source venv/bin/activate
-```
-Install dependencies:
-```bash
-pip install -r requirements.txt
-```
----
-Usage
 
-Launch the application:
+**1. Clone the repository**
 ```bash
-python main.py
+git clone [https://github.com/Shi9870/Serect-huter.git](https://github.com/Shi9870/Serect-huter.git)
+cd Serect-huter
 ```
+
+```
+**2. Create and activate a virtual environment**
+
+* Windows:
+```bash
+
+    python -m venv venv
+    venv\Scripts\activate
+```
+* macOS / Linux:
+```bash
+    python3 -m venv venv
+    source venv/bin/activate
+```
+**3. Install dependencies**
+
+```bash
+    pip install -r requirements.txt
+```
+
+
+---
+
+## Usage
+
+### Launch the application
+
+    python main.py
+
 ### Workflow
 
-Click Select Folder and choose the project directory to scan
-
-Verify the selected path and click Start scanning
-
-Scan results and risk levels are displayed in real time
-
-A summary is shown in the status bar after completion
+1. Click **Select Folder** and choose the project directory to scan.
+2. Verify the selected path and click **Start scanning**.
+3. Scan results and risk levels are displayed in real time in the log window.
+4. A summary is shown in the status bar after completion.
 
 ---
 
 ## Model Training and Customization
+
 This project includes a complete pipeline for retraining the detection model.
 
-### Generate Training Data
+### 1. Generate Training Data
 ```bash
 python data_generator.py
 ```
-All generated data consists of randomly fabricated strings and does not contain any real or valid API keys.
 
-### Train the Model
+> **Note:** All generated data consists of randomly fabricated strings and does not contain any real or valid API keys.
+
+### 2. Train the Model
 ```bash
 python model.py
 ```
-If you wish to adjust feature extraction logic (e.g., entropy calculation or prefix detection),
-modify main_function/utils.py and rerun the above steps.
+
+If you wish to adjust feature extraction logic (e.g., entropy calculation or prefix detection), modify main_function/utils.py and rerun the above steps. The new model will be saved as ml/xgb_model.json.
 
 ---
+
 ## Project Structure
 
-main.py – Application entry point (GUI)
+    Secret-Hunter/
+    ├── main.py                 # Application entry point (GUI)
+    ├── main_function/
+    │   ├── detector.py         # Loads model and performs scanning
+    │   └── utils.py            # Feature extraction and math utilities
+    ├── ml/
+    │   ├── model.py            # Model training script
+    │   ├── data_generator.py   # Synthetic dataset generator
+    │   └── xgb_model.json      # Trained XGBoost model
+    └── README.md               # Project documentation
 
-model.py – Model training script
+---
 
-data_generator.py – Synthetic dataset generator
+## Future Roadmap
 
-main_function/ – Core detection modules
+To further enhance this tool for enterprise DevSecOps pipelines, the following features are planned:
 
-detector.py – Loads model and performs scanning
-
-utils.py – Feature extraction and mathematical utilities
-
-ml/xgb_model.json – Trained XGBoost model
+* **CI/CD Integration**: Add a GitHub Action / GitLab CI template to block commits automatically when secrets are detected.
+* **False Positive Reduction**: Implement a feedback loop allowing users to mark 'false alarms' to retrain the XGBoost model incrementally.
+* **Report Export**: Generate SARIF (Static Analysis Results Interchange Format) reports for integration with dashboards like SonarQube or DefectDojo.
 
 ---
 
 ## Security Notice & Legal Disclaimer
-### ntended Use
 
-This tool is intended **solely for defensive security analysis, educational purposes, and authorized testing**.
-It must **not** be used for unauthorized penetration testing, exploitation, or any illegal activities.
+### Intended Use
+This tool is intended **solely for defensive security analysis, educational purposes, and authorized testing**. It must **not** be used for unauthorized penetration testing, exploitation, or any illegal activities.
 
 ### Data Safety
-All keys, tokens, and datasets used or generated by this project are **synthetic and randomly generated**.
-They do **not** correspond to any real services or valid credentials.
+All keys, tokens, and datasets used or generated by this project are **synthetic and randomly generated**. They do **not** correspond to any real services or valid credentials.
 
 ### Disclaimer of Liability
-
-This software is provided under the **MIT License** on an "AS IS" basis, without warranty of any kind.
-The author shall not be held liable for any direct or indirect damages arising from the use or misuse of this software.
-Users are solely responsible for ensuring compliance with applicable laws and regulations.
+This software is provided under the **MIT License** on an "AS IS" basis, without warranty of any kind. The author shall not be held liable for any direct or indirect damages arising from the use or misuse of this software. Users are solely responsible for ensuring compliance with applicable laws and regulations.
