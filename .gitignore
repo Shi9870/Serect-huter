@@ -16,5 +16,5 @@ env/
 test_entropy.py
 
 ML/dataset.txt
-ML/*.csv
+ML/dataset.csv
 checkingFile/test_leak.py
