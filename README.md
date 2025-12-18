@@ -131,8 +131,7 @@ If you wish to adjust feature extraction logic (e.g., entropy calculation or pre
 
 ## Project Structure
 
-
-    ```text
+```text
     Secret-Hunter/
     ├── main.py                     # Application entry point (PyQt6 GUI)
     ├── checkingFile/
@@ -148,7 +147,7 @@ If you wish to adjust feature extraction logic (e.g., entropy calculation or pre
     │   └── data_generator.py       # generate training data
     │   └── xgb_model.json          # Trained Model
     └── requirements.txt            # Dependencies
-  ```
+```
 ---
 
 ## Future Roadmap
