@@ -64,7 +64,7 @@ These metrics reflect the challenges of static ML-based secret detection. Full t
 ### Training Outcome
 ![Training Outcome](ML/training_Outcome.png)
 
-Additional plots (confusion matrix, feature importance, learning curves, etc.) are available in the `ml/training_artifacts/` directory.
+Additional plots (confusion matrix, feature importance, learning curves, etc.) are available in the `ML/training_Outcome.png` directory.
 
 ---
 
