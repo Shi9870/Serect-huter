@@ -17,7 +17,7 @@ class MLDetector:
         current_dir = os.path.dirname(os.path.abspath(__file__))
         
         # Reconstruct path (assuming 'ml' folder is in the parent directory)
-        model_path = os.path.join(current_dir, '..', 'ml', 'xgb_model.json')
+        model_path = os.path.join(current_dir, '..', 'ML', 'xgb_model.json')
         model_path = os.path.abspath(model_path)
 
         if os.path.exists(model_path):
@@ -32,9 +32,7 @@ class MLDetector:
             print(f"Error: Model file not found at {model_path}")
 
     def scan_line(self, line_content, line_num):
-        """
-        Scans a single line of content and performs ML prediction.
-        """
+
         potential_strings = self.string_pattern.findall(line_content)
         results = []
 
