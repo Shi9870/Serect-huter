@@ -27,6 +27,12 @@ except ImportError:
         def __init__(self): self.model = True
         def scan_line(self, line, idx): return []
 
+def resource_path(relative_path):
+    if hasattr(sys, '_MEIPASS'):
+        return os.path.join(sys._MEIPASS, relative_path)
+    return os.path.join(os.path.abspath("."), relative_path)
+
+
 # ==========================================
 # Data Model (ResultModel)
 # ==========================================
@@ -475,7 +481,7 @@ class SecretHunterWindow(QMainWindow):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    app.setWindowIcon(QIcon(os.path.join("resources/img", "icon.png")))
+    app.setWindowIcon(QIcon(resource_path("resources/img/icon.ico")))
     default_font = QFont("Segoe UI", 10)
     app.setFont(default_font)
     try:

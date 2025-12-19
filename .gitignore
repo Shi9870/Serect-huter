@@ -1,15 +1,14 @@
-# 忽略 Python 編譯檔
+
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
 
-# 忽略虛擬環境
 venv/
 env/
 .env
 
-# 忽略 IDE 設定檔 (VS Code)
+
 .vscode/
 待開發功能.txt
 
@@ -21,3 +20,8 @@ checkingFile/test_leak.py
 
 # Ignore generated test data
 /stress_test_data
+
+#PyInstaller
+build/
+dist/
+*.spec
