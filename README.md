@@ -142,7 +142,7 @@ If you wish to adjust feature extraction logic (e.g., entropy calculation or pre
     ├── resources/
     │   ├── languages.py            # Localization (English/Chinese)
     │   └── styles.py               # QSS Stylesheets
-    ├── ml/
+    ├── ML/
     │   ├── model.py                # Training script
     │   └── data_generator.py       # generate training data
     │   └── xgb_model.json          # Trained Model
