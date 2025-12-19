@@ -105,13 +105,13 @@ if __name__ == "__main__":
 
     # Adjust layout and display the plots
     plt.tight_layout()
+    training_fig = os.path.join(os.path.dirname(__file__), 'training_Outcome.png')
+    plt.savefig(training_fig, dpi=300, bbox_inches='tight')
     plt.show()
 
     # Save the trained model to a JSON file
     # Using the booster object ensures format compatibility
     model_path = os.path.join(os.path.dirname(__file__), 'xgb_model.json')
-    training_fig = os.path.join(os.path.dirname(__file__), 'training_Outcome.png')
-    plt.savefig(training_fig)
     model.get_booster().save_model(model_path)
     print(f"Model saved to: {model_path}")
     
