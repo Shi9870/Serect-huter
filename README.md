@@ -1,6 +1,5 @@
-```markdown
+
 [English](README.md) | [中文](README.zh.md)
-```
 # CodeSentry
 
 ![Python](https://img.shields.io/badge/Python-3.10%2B-blue)
